@@ -33,7 +33,9 @@ userSchema.pre('save', function(next){  //pre() from mongoose method
                 next();
             });
         });
-    }//end of if
+    } else{
+        next();
+    }//end of else
 })
 
 const User = mongoose.model('User', userSchema);
