@@ -63,7 +63,7 @@ app.post('/login', (req,res) => {
     });
 });
 
-app.get('/api/users/auth', auth ,(req,res) =>{
+app.get('/api/users/auth', auth, (req,res) =>{
     //if be here, then the auth is true
     res.status(200).json({
         _id: req.user._id,
@@ -77,5 +77,12 @@ app.get('/api/users/auth', auth ,(req,res) =>{
 
     })
 });
+
+app.get('/api/users/logout', auth, (req, res) =>{
+    User.findOneAndUpdate({_id: req.user._id}, {token:""}, (err, user) => {
+        if (err) return res.json({success:false, err});
+        return res.status(200).send({sucess:true});
+    })
+})
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
