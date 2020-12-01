@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
+const { response } = require('express');
     
 
 const userSchema = mongoose.Schema({
@@ -59,6 +60,19 @@ userSchema.methods.generateToken = function(cb) {
         if(err) return cb(err);
         cb(null, user);
     });
+}
+
+userSchema.statics.findByToken = function(token, cb){
+    var user = this;
+
+    jwt.verify(token, 'secretToken', function(err, decoded){
+        //find user
+        //token from cline and token from DB
+        user.findOne({"_id": decoded, "token": token}, function(err, user){
+            if(err) return cb(err);
+            cb(null, user);
+        })
+    })
 }
 
 

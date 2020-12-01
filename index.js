@@ -12,10 +12,13 @@ mongoose.connect(config.mongoURI,{
 .then(()=>{console.log('MongoDB connected...')})
 .catch(err=> console.log(err));
 
-const {User} =  require('./models/User');
+const { User } =  require('./models/User');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-// const user = require('./models/User');
+
+const { auth } = require('./middleware/auth');
+
+
 const { response } = require('express');
 //application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({extended: true}));
@@ -26,7 +29,7 @@ app.use(cookieParser());
 
 app.get('/', (req,res) => res.send('Hello World!~'));
 
-app.post('/register', (req,res) => {//endpoint && callback function
+app.post('/api/users/register', (req,res) => {//endpoint && callback function
     // 회원가입시 필요한 정보를 client로 받아 DB에 저장
     // usermodel 사용 by const {User}
     const user = new User(req.body); //instance 생성
@@ -56,10 +59,23 @@ app.post('/login', (req,res) => {
                 //token을 cookie or local storage에 저장
                 res.cookie("x_auth", user.token).status(200).json({ loginSuccess:true, userId: user._id});
             });
-        });
-        
+        });  
+    });
+});
+
+app.get('/api/users/auth', auth ,(req,res) =>{
+    //if be here, then the auth is true
+    res.status(200).json({
+        _id: req.user._id,
+        isAdmin: req.user.role === 0? false:true,
+        isAuth: true,
+        email: req.user.email,
+        name: req.user.name,
+        lastname: req.user.lastname,
+        role: req.user.role,
+        image: req.user.image
+
     })
-    
 });
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
