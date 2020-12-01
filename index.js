@@ -12,12 +12,16 @@ mongoose.connect(config.mongoURI,{
 .then(()=>{console.log('MongoDB connected...')})
 .catch(err=> console.log(err));
 
-//application/x-www-form-urlencoded
 const {User} =  require('./models/User');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+// const user = require('./models/User');
+const { response } = require('express');
+//application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({extended: true}));
 //application/json
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 
 app.get('/', (req,res) => res.send('Hello World!~'));
@@ -25,15 +29,37 @@ app.get('/', (req,res) => res.send('Hello World!~'));
 app.post('/register', (req,res) => {//endpoint && callback function
     // 회원가입시 필요한 정보를 client로 받아 DB에 저장
     // usermodel 사용 by const {User}
-
     const user = new User(req.body); //instance 생성
     //by body-parser, req.body는 json format으로 변환
     user.save( (err,userInfro) => {   //DB에 저장하고, callback function
         if(err) return res.json({success: false, err}); // err가 있으면
         return res.status(200).json({success: true}); //err가 없으면
     });
-
-
 }); 
+
+app.post('/login', (req,res) => {
+    //이메일을 DB에서 찾기
+    User.findOne({email: req.body.email}, (err, user) => {
+        if(!user){
+            return res.json({
+                loginSuccess: false,
+                message: "No user founded."
+            })
+        } 
+        //있다면 비밀번호 체크
+        //비밀번호 같다면, Token 생성
+        user.comparePassword(req.body.password, (err, isMatch) => {
+            if(!isMatch) return res.json({ loginSuccess:false, message: "wrong password."});
+            
+            user.generateToken((err, user) => {
+                if(err) return response.status(400).send(err);
+                //token을 cookie or local storage에 저장
+                res.cookie("x_auth", user.token).status(200).json({ loginSuccess:true, userId: user._id});
+            });
+        });
+        
+    })
+    
+});
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
