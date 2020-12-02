@@ -29,6 +29,12 @@ app.use(cookieParser());
 
 app.get('/', (req,res) => res.send('Hello World!~'));
 
+app.get('/api/hello', (req,res) => {
+
+
+    res.send("안녕하세용.")
+});
+
 app.post('/api/users/register', (req,res) => {//endpoint && callback function
     // 회원가입시 필요한 정보를 client로 받아 DB에 저장
     // usermodel 사용 by const {User}
