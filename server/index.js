@@ -46,7 +46,7 @@ app.post('/api/users/register', (req,res) => {//endpoint && callback function
     });
 }); 
 
-app.post('/login', (req,res) => {
+app.post('/api/users/login', (req,res) => {
     //이메일을 DB에서 찾기
     User.findOne({email: req.body.email}, (err, user) => {
         if(!user){
