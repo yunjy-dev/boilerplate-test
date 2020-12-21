@@ -1,6 +1,8 @@
 import axios from "axios";
 import {
-    LOGIN_USER, REGISTER_USER
+    LOGIN_USER, 
+    REGISTER_USER,
+    AUTH_USER
 } from '../_actions/types';
 
 export default function (previousState = {}, action) {
@@ -13,6 +15,10 @@ export default function (previousState = {}, action) {
             return {...previousState, register: action.payload}
             break;
     
+        case AUTH_USER:
+                return {...previousState, userData: action.payload}
+                break;
+        
         default:
             return previousState;
     }
